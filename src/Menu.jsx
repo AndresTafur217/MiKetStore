@@ -3,7 +3,7 @@ import { ProtectedLink } from "./auth/ProtectedLink";
 
 export function Menu() {
   return (
-    <div className="h-full p-2.5 flex flex-row justify-center items-center">
+    <div className="h-full flex flex-row justify-center items-end">
 
       <section className="w-full max-w-3xl border-b-2 pb-2.5 border-b-gray-400 px-3.5 flex flex-row justify-evenly items-center">
         
@@ -61,7 +61,7 @@ export function Menu() {
           <ProtectedLink to="/orders" aria-label="Pedidos" title="Pedidos" className="h-full w-full rounded-full flex justify-center items-center">
             <div className="h-full w-full rounded-full flex justify-center items-center">
               <svg className="size-7.5 md:size-10">
-                <use xlinkHref="/sprite.svg#car" />
+                <use xlinkHref="/sprite.svg#history" />
               </svg>
             </div>
           </ProtectedLink>

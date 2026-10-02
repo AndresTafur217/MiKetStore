@@ -1,14 +1,23 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Layout } from "./Layout";
-import { Content } from "./Content";
-import { Products } from "./Products";
-import { Categories } from "./Categories";
-import { Favorites } from "./Favorites";
-import { Shoppings } from "./Shoppings";
-import { Orders } from "./Orders";
-import { User } from "./User";
 import { AuthModalProvider } from "./auth/AuthModalProvider";
 import { ProtectedRoute } from "./auth/ProtectedRoute";
+import { PageSkeleton } from "./Skeletons";
+
+const Content = lazy(() => import("./Content").then((module) => ({ default: module.Content })));
+const Products = lazy(() => import("./Products").then((module) => ({ default: module.Products })));
+const Categories = lazy(() => import("./Categories").then((module) => ({ default: module.Categories })));
+const Favorites = lazy(() => import("./Favorites").then((module) => ({ default: module.Favorites })));
+const Shoppings = lazy(() => import("./Shoppings").then((module) => ({ default: module.Shoppings })));
+const Orders = lazy(() => import("./Orders").then((module) => ({ default: module.Orders })));
+const User = lazy(() => import("./User").then((module) => ({ default: module.User })));
+
+const withLoading = (Component, variant) => (
+  <Suspense fallback={<PageSkeleton variant={variant} />}>
+    <Component />
+  </Suspense>
+);
 
 export function App() {
   return (
@@ -16,17 +25,17 @@ export function App() {
       <AuthModalProvider>
         <Routes>
           <Route path="/" element={<Layout />}>
-            <Route index element={<Content />} />
-            <Route path="products" element={<Products />} />
-            <Route path="productos" element={<Products />} />
-            <Route path="categories" element={<Categories />} />
-            <Route path="categorias" element={<Categories />} />
-            <Route path="favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
-            <Route path="guardados" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
-            <Route path="shoppings" element={<ProtectedRoute><Shoppings /></ProtectedRoute>} />
-            <Route path="orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
-            <Route path="pedidos" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
-            <Route path="perfil" element={<ProtectedRoute><User /></ProtectedRoute>} />
+            <Route index element={withLoading(Content, "home")} />
+            <Route path="products" element={withLoading(Products, "products")} />
+            <Route path="productos" element={withLoading(Products, "products")} />
+            <Route path="categories" element={withLoading(Categories, "categories")} />
+            <Route path="categorias" element={withLoading(Categories, "categories")} />
+            <Route path="favorites" element={<ProtectedRoute>{withLoading(Favorites, "favorites")}</ProtectedRoute>} />
+            <Route path="guardados" element={<ProtectedRoute>{withLoading(Favorites, "favorites")}</ProtectedRoute>} />
+            <Route path="shoppings" element={<ProtectedRoute>{withLoading(Shoppings, "cart")}</ProtectedRoute>} />
+            <Route path="orders" element={<ProtectedRoute>{withLoading(Orders, "orders")}</ProtectedRoute>} />
+            <Route path="pedidos" element={<ProtectedRoute>{withLoading(Orders, "orders")}</ProtectedRoute>} />
+            <Route path="perfil" element={<ProtectedRoute>{withLoading(User, "profile")}</ProtectedRoute>} />
           </Route>
         </Routes>
       </AuthModalProvider>

@@ -19,7 +19,7 @@ export function Content() {
   });
   return(
     <div className="h-max w-full flex flex-col gap-7.5 items-center">
-      <section className="w-full h-90 p-5 overflow-hidden">
+      <section className="w-full h-65 sm:h-75 md:h-91 p-5 overflow-hidden border-x-2 border-border-gray">
         <Slide />
       </section>
       <section className="w-full p-2.5">

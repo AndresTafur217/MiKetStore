@@ -1,8 +1,10 @@
 import { useState, useMemo, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { addToCart, categories, demoUser, getLocalCart, getLocalFavorites, products as catalogProducts, toggleLocalFavorite } from "./data/catalog";
 import { useCurrentUser } from "./hooks/useCurrentUser";
 import { useAuthModal } from "./auth/AuthModalContext";
+import { SkeletonImage } from "./Skeletons";
 
 export function Products() {
   const user = useCurrentUser();
@@ -15,6 +17,7 @@ export function Products() {
   const [favError, setFavError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   
   const [filters, setFilters] = useState({
     selectedCategories: searchParams.has("category") ? [Number(searchParams.get("category"))] : [],
@@ -28,6 +31,7 @@ export function Products() {
 
   const openProductModal = (product) => {
     setSelectedProduct(product);
+    setSelectedImageIndex(0);
   };
 
   const closeProductModal = () => {
@@ -49,6 +53,15 @@ export function Products() {
     setCart(user ? getLocalCart(user.id) : []);
   }, [user]);
 
+  useEffect(() => {
+    if (!selectedProduct) return;
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") closeProductModal();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedProduct]);
+
   // Obtener especificaciones y vendedores únicos de los productos
   const uniqueSpecs = useMemo(() => {
     const specs = new Set();
@@ -58,16 +71,6 @@ export function Products() {
       });
     });
     return Array.from(specs).sort();
-  }, [products]);
-
-  const uniqueVendedores = useMemo(() => {
-    const vendedores = new Set();
-    products.forEach(product => {
-      if (product.vendedor) {
-        vendedores.add(product.vendedor);
-      }
-    });
-    return Array.from(vendedores).sort();
   }, [products]);
 
   // Aplicar filtros a los productos
@@ -330,23 +333,6 @@ export function Products() {
               </select>
             </div>
 
-            {/* Filtro por vendedor */}
-            <div className="space-y-2">
-              <h4 className="font-medium text-gray-800">Vendedor</h4>
-              <select
-                value={filters.selectedVendedor}
-                onChange={(e) => handleFilterChange('selectedVendedor', e.target.value)}
-                className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-              >
-                <option value="">Todos</option>
-                {uniqueVendedores.map(vendedor => (
-                  <option key={vendedor} value={vendedor}>
-                    {vendedor}
-                  </option>
-                ))}
-              </select>
-            </div>
-
           </div>
         </div>
       )}
@@ -370,16 +356,16 @@ export function Products() {
             return (
               <div
                 key={product.id}
-                className="size-product rounded-4xl p-2.5 flex flex-col gap-1.5 bg-store-bg2/50 shadow-lg cursor-pointer hover:scale-101 transition-all ease-in-out"
+                className="w-60 md:w-product h-100 rounded-4xl p-2.5 flex flex-col gap-1.5 bg-store-bg2/50 shadow-lg cursor-pointer hover:scale-101 transition-all ease-in-out"
                 onClick={() => openProductModal(product)}
               >
-                <section className="h-2/3 w-full rounded-t-3xl bg-store-bg2/70 overflow-hidden relative">
+                <section className="w-full h-3/4 border-b border-b-border-gray rounded-t-3xl bg-store-bg2/70 overflow-hidden relative flex justify-center items-center">
                   {/* Imagen principal */}
                   {product.imagenes?.[0] ? (
-                    <img
+                    <SkeletonImage
                       src={product.imagenes[0].url}
                       alt={product.imagenes[0].alt || product.nombre}
-                      className="w-full h-full object-contain"
+                      className="absolute inset-0"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500">
@@ -438,7 +424,7 @@ export function Products() {
                       <article className="w-2/3">{product.descripcion}</article>
                     </div>
                     <article className="w-1/3 h-full rounded-2xl flex items-center justify-center bg-store-details">
-                      <strong>{product.precio}</strong>
+                      <strong>{new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(product.precio)}</strong>
                     </article>
                   </div>
                 </section>
@@ -450,7 +436,7 @@ export function Products() {
 
       {/* Notificaciones de favoritos */}
       {(favMessage || favError) && (
-        <div className="fixed top-4 right-4 flex flex-col gap-2 w-60 sm:w-72 text-[10px] sm:text-xs z-50">
+        <div className="fixed top-4 right-4 z-[110] flex w-60 flex-col gap-2 text-[10px] sm:w-72 sm:text-xs">
           <div className={`flex items-center justify-between w-full h-12 sm:h-14 rounded-lg bg-surface px-[10px] shadow-md ${
             favError ? 'border border-red-300' : 'border border-gray-200'
           }`}>
@@ -514,68 +500,149 @@ export function Products() {
         </div>
       )}
 
-      {selectedProduct && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white w-[95%] md:w-[70%] lg:w-[50%] rounded-4xl shadow-lg p-6 relative max-h-[90vh] overflow-y-auto">
-            
-            {/* Botón cerrar */}
-            <button
-              onClick={closeProductModal}
-              className="absolute top-3 right-3 text-gray-600 hover:text-black"
-            >
-              ✖
-            </button>
-
-            {/* Nombre del producto */}
-            <h2 className="text-2xl font-bold mb-4">{selectedProduct.nombre}</h2>
-
-            {/* Galería de imágenes */}
-            {selectedProduct.imagenes?.length > 0 ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
-                {selectedProduct.imagenes.map((img) => (
-                  <img
-                    key={img.id}
-                    src={img.url}
-                    alt={img.alt}
-                    className="w-full h-40 object-contain rounded-lg bg-gray-100"
+      {selectedProduct && createPortal(
+        <div
+          className="fixed inset-0 z-[90] flex items-center justify-center bg-black/55 p-3 sm:p-6"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) closeProductModal();
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="product-modal-title"
+            className="flex max-h-[92dvh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl md:flex-row"
+          >
+            <section className="flex h-[38vh] min-h-56 max-h-80 shrink-0 flex-col bg-gray-50 md:h-auto md:min-h-0 md:w-[42%] md:max-w-[28rem]">
+              {selectedProduct.imagenes?.length > 0 ? (
+                <>
+                  <SkeletonImage
+                    src={selectedProduct.imagenes[selectedImageIndex]?.url}
+                    alt={selectedProduct.imagenes[selectedImageIndex]?.alt || selectedProduct.nombre}
+                    className="min-h-0 flex-1 p-4"
                   />
-                ))}
+                  {selectedProduct.imagenes.length > 1 && (
+                    <div className="flex shrink-0 gap-2 overflow-x-auto border-t border-gray-200 px-4 py-3">
+                      {selectedProduct.imagenes.map((image, index) => (
+                        <button
+                          key={`${image.url}-${index}`}
+                          type="button"
+                          aria-label={`Ver imagen ${index + 1}`}
+                          aria-pressed={selectedImageIndex === index}
+                          onClick={() => setSelectedImageIndex(index)}
+                          className={`size-14 shrink-0 overflow-hidden rounded-lg border-2 bg-white ${
+                            selectedImageIndex === index ? "border-blue-600" : "border-transparent"
+                          }`}
+                        >
+                          <SkeletonImage src={image.url} alt={image.alt} className="size-full" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="flex min-h-0 flex-1 items-center justify-center text-sm text-gray-500">
+                  Sin imágenes
+                </div>
+              )}
+            </section>
+
+            <section className="flex min-h-0 flex-1 flex-col">
+              <header className="flex items-start justify-between gap-4 border-b border-gray-100 px-5 py-4 sm:px-6">
+                <div className="min-w-0">
+                  <div className="mb-2 flex flex-wrap gap-1.5">
+                    {selectedProduct.categorias?.map((category) => (
+                      <span key={category.id} className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+                        {category.nombre}
+                      </span>
+                    ))}
+                  </div>
+                  <h2 id="product-modal-title" className="text-lg font-bold leading-snug text-gray-950 sm:text-xl">
+                    {selectedProduct.nombre}
+                  </h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={closeProductModal}
+                  aria-label="Cerrar detalle del producto"
+                  className="grid size-9 shrink-0 place-items-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-950"
+                >
+                  <svg className="size-4"><use xlinkHref="/sprite.svg#xmark" /></svg>
+                </button>
+              </header>
+
+              <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-5 py-4 sm:px-6">
+                <div className="flex flex-wrap items-end justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-medium uppercase text-gray-500">Precio</p>
+                    <p className="mt-1 text-2xl font-bold text-blue-700">
+                      {new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(selectedProduct.precio)}
+                    </p>
+                  </div>
+                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                    selectedProduct.stock > 0 ? "bg-primary/20 text-secondary" : "bg-red-50 text-red-700"
+                  }`}>
+                    {selectedProduct.stock > 0 ? `${selectedProduct.stock} unidades disponibles` : "Agotado"}
+                  </span>
+                </div>
+
+                <p className="text-sm leading-6 text-gray-600">{selectedProduct.descripcion}</p>
+
+                {selectedProduct.especificaciones?.length > 0 && (
+                  <div>
+                    <h3 className="mb-2 text-sm font-semibold text-gray-900">Características</h3>
+                    <ul className="grid gap-2 sm:grid-cols-2">
+                      {selectedProduct.especificaciones.map((specification, index) => (
+                        <li key={`${specification.nombre}-${index}`} className="rounded-lg bg-gray-50 px-3 py-2 text-sm leading-5 text-gray-600">
+                          {specification.nombre}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-3 border-t border-gray-100 pt-4 text-sm">
+                  <div>
+                    <p className="text-xs font-medium uppercase text-gray-500">Calificación</p>
+                    <p className="mt-1 font-medium text-gray-800">
+                      {selectedProduct.totalValoraciones > 0
+                        ? `${selectedProduct.valoracionPromedio} de 5 · ${selectedProduct.totalValoraciones} opiniones`
+                        : "Sin calificaciones"}
+                    </p>
+                  </div>
+                </div>
               </div>
-            ) : (
-              <div className="w-full h-40 flex items-center justify-center bg-gray-200 text-gray-500 rounded-lg">
-                Sin imágenes
-              </div>
-            )}
 
-            {/* Descripción */}
-            <p className="text-gray-700 mb-4">{selectedProduct.descripcion}</p>
-
-            {/* Precio */}
-            <p className="text-xl font-semibold text-blue-600 mb-4">
-              ${selectedProduct.precio}
-            </p>
-
-            {/* Vendedor */}
-            <div className="mb-4">
-              <h3 className="font-semibold">Vendedor:</h3>
-              <p>{selectedProduct.vendedor}</p>
-            </div>
-
-            {/* Ratings */}
-            <div>
-              <h3 className="font-semibold mb-2">Calificaciones:</h3>
-              <p>{selectedProduct.valoracionPromedio} de 5 ({selectedProduct.totalValoraciones} valoraciones de muestra)</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => handleAddToCart(selectedProduct.id)}
-              disabled={selectedProduct.stock < 1}
-              className="mt-5 w-full rounded-lg bg-store-items px-4 py-3 font-semibold disabled:opacity-50"
-            >
-              {selectedProduct.stock < 1 ? "Agotado" : "Añadir al carrito"}
-            </button>
+              <footer className="grid shrink-0 grid-cols-1 gap-2 border-t border-gray-100 bg-white p-4 min-[420px]:grid-cols-2 sm:px-6">
+                <button
+                  type="button"
+                  aria-pressed={isProductInFavorites(selectedProduct.id)}
+                  onClick={() => handleFavoriteClick(selectedProduct.id)}
+                  className={`flex min-h-12 items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold hover:scale-105 transition-colors ${
+                    isProductInFavorites(selectedProduct.id)
+                      ? "border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100"
+                      : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
+                  }`}
+                >
+                  <svg className="size-5 shrink-0">
+                    <use xlinkHref={isProductInFavorites(selectedProduct.id) ? "/sprite.svg#removebm" : "/sprite.svg#addbm"} />
+                  </svg>
+                  <span>{isProductInFavorites(selectedProduct.id) ? "Guardado" : "Guardar en favoritos"}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleAddToCart(selectedProduct.id)}
+                  disabled={selectedProduct.stock < 1}
+                  className="flex min-h-12 items-center justify-center gap-2 rounded-xl hover:scale-105 bg-primary-dark px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary/50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <svg className="size-5 shrink-0"><use xlinkHref="/sprite.svg#shop" /></svg>
+                  <span>{selectedProduct.stock < 1 ? "Agotado" : "Añadir al carrito"}</span>
+                </button>
+              </footer>
+            </section>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>    
   );

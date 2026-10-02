@@ -26,9 +26,9 @@ export function Layout() {
   return (
     <div className="max-w-dvw h-dvh flex flex-col overflow-hidden bg-background">
 
-      <section className="h-25 md:h-35 p-5 flex flex-row justify-between items-center">
+      <section className="h-22 sm:h-25 md:h-35 p-5 flex flex-row justify-between items-center">
         <article className="h-full w-20 md:w-30 lg:w-50 flex justify-center items-center">
-          <svg className="size-15 md:size-20" aria-hidden="true">
+          <svg className="h-full" aria-hidden="true">
             <use xlinkHref="/sprite.svg#miketicon" />
           </svg>
         </article>
@@ -75,11 +75,11 @@ export function Layout() {
           </ProtectedLink>
         </section>
       </section>
-      <section className="h-20 bg-background z-50 overflow-hidden">
+      <section className="h-17 md:h-20 bg-background z-50 overflow-hidden">
         <Menu />
       </section>
-      <section className="min-h-0 flex-1 p-2.5 rounded-7xl bg-store-bg2/70 z-10 overflow-hidden">
-          <div className="h-full w-full rounded-6xl overflow-y-auto scrollbar-none">
+      <section className="min-h-0 flex-1 px-2.5 pb-2.5 bg-store-bg2/70 z-10 overflow-hidden">
+          <div className="h-full w-full overflow-y-auto scrollbar">
             <div className="flex min-h-full w-full flex-col items-center">
               <section className="w-full p-5 rounded-b-6xl">
                 <Outlet />

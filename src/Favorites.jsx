@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { categories, getLocalFavorites, toggleLocalFavorite } from "./data/catalog";
 import { Link } from "react-router-dom";
 import { useCurrentUser } from "./hooks/useCurrentUser";
+import { SkeletonImage } from "./Skeletons";
 
 function hasActiveFilters(filters) {
   return filters.selectedCategories.length > 0 ||
@@ -497,16 +498,16 @@ export function Favorites() {
                 <section className="h-2/3 w-full rounded-t-3xl bg-store-bg2/70 overflow-hidden relative">
                   {/* Imagen principal */}
                   {product.imagenes?.length > 0 ? (
-                    <img
+                    <SkeletonImage
                       src={product.imagenes[0].url}
                       alt={product.imagenes[0].alt || product.nombre}
-                      className="w-full h-full object-contain"
+                      className="absolute inset-0"
                     />
                   ) : product.imagen ? ( // si solo tiene una propiedad "imagen"
-                    <img
+                    <SkeletonImage
                       src={product.imagen}
                       alt={product.nombre}
-                      className="w-full h-full object-contain"
+                      className="absolute inset-0"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500">

@@ -1,4 +1,5 @@
 import { products } from "./data/catalog";
+import { SkeletonImage } from "./Skeletons";
 
 export function Slide() {
   const carouselProducts = [...products, ...products];
@@ -10,20 +11,20 @@ export function Slide() {
         return (
           <article
             key={p.id + "-" + i}
-            className="relative h-full w-140 rounded-4xl flex flex-col justify-center items-center overflow-hidden"
+            className="relative h-full w-140 rounded-4xl bg-surface flex flex-col justify-center items-center overflow-hidden"
           >
             {firstImage ? (
-              <img
+              <SkeletonImage
                 src={firstImage.url}
                 alt={firstImage.alt || p.nombre}
-                className="w-full object-contain mb-3 rounded-xl"
+                className="w-full h-full object-contain rounded-xl"
               />
             ) : (
               <div className="seze-full flex items-center justify-center bg-gray-200 text-gray-500 rounded-xl">
                 Sin imagen
               </div>
             )}
-            <h3 className="font-bold absolute ">{p.nombre}</h3>
+            <h3 className="font-bold absolute bg-white/50 p-2 rounded-xl capitalize">{p.nombre}</h3>
           </article>
         );
       })}

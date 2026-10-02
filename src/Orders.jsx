@@ -14,7 +14,31 @@ export function Orders() {
     const [orders, setOrders] = useState(() => user ? getLocalOrders(user.id) : []);
 
     useEffect(() => {
-        setOrders(user ? getLocalOrders(user.id) : []);
+        if (!user) {
+            setOrders([]);
+            return undefined;
+        }
+
+        let timeoutId;
+        const scheduleNextPaymentUpdate = (currentOrders) => {
+            const dueTimes = currentOrders
+                .filter((order) => order.status === "En espera del pago")
+                .map((order) => Date.parse(order.paymentDueAt))
+                .filter(Number.isFinite);
+            if (dueTimes.length === 0) return;
+
+            const nextDueAt = Math.min(...dueTimes);
+            timeoutId = window.setTimeout(() => {
+                const updatedOrders = getLocalOrders(user.id);
+                setOrders(updatedOrders);
+                scheduleNextPaymentUpdate(updatedOrders);
+            }, Math.max(0, nextDueAt - Date.now()) + 25);
+        };
+
+        const currentOrders = getLocalOrders(user.id);
+        setOrders(currentOrders);
+        scheduleNextPaymentUpdate(currentOrders);
+        return () => window.clearTimeout(timeoutId);
     }, [user]);
 
     if (!user) {
@@ -45,7 +69,8 @@ export function Orders() {
                                     <p className="text-sm text-gray-600">{new Date(order.createdAt).toLocaleString("es-CO")}</p>
                                 </div>
                                 <div className="text-right">
-                                    <span className="text-sm text-emerald-700">{order.status}</span>
+                                    <span className={`text-sm ${order.status === "En espera del pago" ? "text-amber-700" : "text-emerald-700"}`}>{order.status}</span>
+                                    {order.paymentMethod && <p className="text-xs text-gray-500">Pago: {order.paymentMethod}</p>}
                                     <p className="font-semibold">{formatPrice(order.total)}</p>
                                 </div>
                             </div>
