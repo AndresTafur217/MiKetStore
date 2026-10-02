@@ -10,7 +10,7 @@ export function Content() {
           const contentWidth = marquee.scrollWidth;
           const totalDistance = containerWidth + contentWidth;
 
-          // Velocidad en píxeles por segundo (ajústala según prefieras)
+          // Velocidad en píxeles por segundo
           const speed = 100;
           const duration = totalDistance / speed;
 
