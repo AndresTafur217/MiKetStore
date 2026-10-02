@@ -1,0 +1,95 @@
+import { useEffect, useState } from "react";
+import { Outlet } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Menu } from "./Menu";
+import { Contact } from "./Contact";
+import { ProtectedLink } from "./auth/ProtectedLink";
+import { useCurrentUser } from "./hooks/useCurrentUser";
+
+export function Layout() {
+  const user = useCurrentUser();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const searchValue = searchParams.get("search") || "";
+  const [searchTerm, setSearchTerm] = useState(searchValue);
+
+  useEffect(() => {
+    setSearchTerm(searchValue);
+  }, [searchValue]);
+
+  const handleSearch = (event) => {
+    event.preventDefault();
+    const query = searchTerm.trim();
+    navigate(query ? `/products?search=${encodeURIComponent(query)}` : "/products");
+  };
+
+  return (
+    <div className="max-w-dvw h-dvh flex flex-col overflow-hidden bg-background">
+
+      <section className="h-25 md:h-35 p-5 flex flex-row justify-between items-center">
+        <article className="h-full w-20 md:w-30 lg:w-50 flex justify-center items-center">
+          <svg className="size-15 md:size-20" aria-hidden="true">
+            <use xlinkHref="/sprite.svg#miketicon" />
+          </svg>
+        </article>
+        <section className="flex justify-center items-center">
+          <form onSubmit={handleSearch} role="search" className="group flex items-center overflow-hidden rounded-full border border-gray-400 transition-colors duration-300 focus-within:border-blue-500 hover:border-blue-500">
+            <input
+              id="search"
+              type="text"
+              aria-label="Buscar productos"
+              placeholder="Buscar productos"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              className="
+                w-0 bg-transparent px-0 py-2 text-sm opacity-0 outline-none
+                transition-all duration-300 ease-in-out motion-reduce:transition-none
+                group-hover:w-40 group-hover:pl-3 group-hover:opacity-100
+                group-focus-within:w-40 group-focus-within:pl-3 group-focus-within:opacity-100
+                sm:group-hover:w-52 sm:group-focus-within:w-52
+                md:group-hover:w-64 md:group-focus-within:w-64"
+            />
+            <button type="submit" aria-label="Buscar" title="Buscar" className="shrink-0 rounded-full p-2">
+              <svg width="24" height="24" aria-hidden="true">
+                <use xlinkHref="/sprite.svg#search" />
+              </svg>
+            </button>
+          </form>
+        </section>
+        <section className="flex flex-row justify-evenly items-center">
+          <article className="size-8 mx-3.5">
+            <div className="h-full w-full flex justify-center items-center rounded-full text-gray-800 
+                      transition-transform ease-in-out hover:scale-105 hover:bg-gray-400">
+              <svg className="size-6.5">
+                <use xlinkHref="/sprite.svg#settings" />
+              </svg>
+            </div>
+          </article>
+          <ProtectedLink to="/perfil" aria-label={user ? "Abrir perfil" : "Iniciar sesión"} title={user ? "Abrir perfil" : "Iniciar sesión"} className="size-12 md:size-18  border-gray-400 rounded-full">
+            <div className="h-full w-full flex justify-center items-center rounded-full bg-store-items 
+              text-gray-900 transition-transform ease-in-out hover:scale-105 hover:bg-surface hover:text-store-bg2">
+              <svg className="size-6.5 md:size-12">
+                <use xlinkHref={user ? "/sprite.svg#person" : "/sprite.svg#login"} />
+              </svg>
+            </div>
+          </ProtectedLink>
+        </section>
+      </section>
+      <section className="h-20 bg-background z-50 overflow-hidden">
+        <Menu />
+      </section>
+      <section className="min-h-0 flex-1 p-2.5 rounded-7xl bg-store-bg2/70 z-10 overflow-hidden">
+          <div className="h-full w-full rounded-6xl overflow-y-auto scrollbar-none">
+            <div className="flex min-h-full w-full flex-col items-center">
+              <section className="w-full p-5 rounded-b-6xl">
+                <Outlet />
+              </section>
+              <section className="mt-auto w-full p-2.5 overflow-hidden">
+                <Contact />
+              </section>
+            </div>
+          </div>
+      </section>
+    </div>
+  );
+}
