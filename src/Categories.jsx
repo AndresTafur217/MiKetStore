@@ -15,7 +15,7 @@ export function Categories({ compact = false }) {
             <Link
               key={category.id}
               to={`/products?category=${category.id}`}
-              className={`flex flex-col justify-between border border-gray-300 bg-white/70 rounded-1xl p-4 transition-colors hover:bg-store-items2 ${compact ? "w-52 min-h-24" : "min-h-32"}`}
+              className={`flex flex-col justify-between border border-gray-300 bg-white/70 rounded-1xl p-4 transition-colors ${compact ? "w-52 min-h-24" : "min-h-32"}`}
             >
               <span className="font-semibold">{category.nombre}</span>
               <span className="mt-2 text-sm text-gray-600">{category.descripcion}</span>

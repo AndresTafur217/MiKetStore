@@ -26,7 +26,7 @@ export function User() {
             <section className="mx-auto flex w-full max-w-3xl flex-col items-center gap-4 py-16 text-center">
                 <h1 className="text-2xl font-bold">Inicia sesión en tu cuenta</h1>
                 <p className="max-w-md text-gray-600">Accede para consultar tus favoritos, carrito y pedidos.</p>
-                <button type="button" onClick={() => requestLogin()} className="mt-2 bg-store-items px-4 py-2 font-semibold hover:bg-store-items2">Iniciar sesión</button>
+                <button type="button" onClick={() => requestLogin()} className="mt-2 px-4 py-2 font-semibold">Iniciar sesión</button>
             </section>
         );
     }
@@ -72,7 +72,7 @@ export function User() {
                 </div>
             </div>
 
-            <button type="button" onClick={handleLogout} className="mt-2 border border-gray-400 px-4 py-2 hover:bg-store-items2">Cerrar sesión</button>
+            <button type="button" onClick={handleLogout} className="mt-2 border border-gray-400 px-4 py-2">Cerrar sesión</button>
             <Link to="/" className="ml-4 text-sm underline">Volver a la tienda</Link>
         </section>
     );

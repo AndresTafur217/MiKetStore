@@ -1036,8 +1036,8 @@ export const products = [
 
 export const demoUser = {
   id: "demo-user",
-  nombre: "Andrea Tafur",
-  email: "andrea.tafur@miketstore.com",
+  nombre: "Andres Tafur",
+  email: "andres.tafur@miketstore.com",
   password: "MiKet2026!",
 };
 

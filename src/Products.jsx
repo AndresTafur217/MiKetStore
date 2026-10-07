@@ -225,7 +225,7 @@ export function Products() {
           <div 
             className={`border border-gray-400 w-max h-max py-1 px-2.5 rounded-xl cursor-pointer 
               transition-all ease-in-out hover:scale-105 hover:border-gray-950 hover:shadow-2xl
-              ${showFilters ? 'bg-store-details border-gray-950' : 'hover:bg-store-details'}`}
+              ${showFilters ? 'border-gray-950' : ''}`}
             onClick={() => setShowFilters(!showFilters)}
           >
             Filtros {Object.values(filters).some(f => 
@@ -235,7 +235,7 @@ export function Products() {
           
           {/* Filtros rápidos */}
           <div className="border border-gray-400 w-max h-max py-1 px-2.5 rounded-xl cursor-pointer 
-            transition-all ease-in-out hover:scale-105 hover:bg-store-items2 hover:border-gray-950 
+            transition-all ease-in-out hover:scale-105 hover:border-gray-950 
             hover:shadow-2xl"
             onClick={() => handleFilterChange('inStock', !filters.inStock)}
           >
@@ -243,7 +243,7 @@ export function Products() {
           </div>
           
           <div className="border border-gray-400 w-max h-max py-1 px-2.5 rounded-xl cursor-pointer 
-            transition-all ease-in-out hover:scale-105 hover:bg-store-items2 hover:border-gray-950 
+            transition-all ease-in-out hover:scale-105 hover:border-gray-950 
             hover:shadow-2xl"
             onClick={clearFilters}
           >
@@ -356,10 +356,10 @@ export function Products() {
             return (
               <div
                 key={product.id}
-                className="w-60 md:w-product h-100 rounded-4xl p-2.5 flex flex-col gap-1.5 bg-store-bg2/50 shadow-lg cursor-pointer hover:scale-101 transition-all ease-in-out"
+                className="w-38 md:w-60 lg:w-product h-60 md:h-100 rounded-2xl md:rounded-4xl p-1.5 md:p-2.5 flex flex-col gap-1.5 shadow-lg cursor-pointer hover:scale-101 transition-all ease-in-out overflow-auto"
                 onClick={() => openProductModal(product)}
               >
-                <section className="w-full h-3/4 border-b border-b-border-gray rounded-t-3xl bg-store-bg2/70 overflow-hidden relative flex justify-center items-center">
+                <section className="w-full h-3/5 md:h-2/3 border-b border-b-border-gray rounded-t-xl md:rounded-t-3xl overflow-hidden relative flex justify-center items-center">
                   {/* Imagen principal */}
                   {product.imagenes?.[0] ? (
                     <SkeletonImage
@@ -380,7 +380,7 @@ export function Products() {
                   )}
 
                   <div 
-                    className={`absolute right-0 bottom-0 border p-1 m-3 rounded-full cursor-pointer transition-colors ${
+                    className={`absolute right-0 bottom-0 p-1 m-1.5 md:m-3 rounded-full cursor-pointer transition-colors ${
                       isInFavorites 
                         ? 'border-red-600 text-red-600 hover:text-red-800 hover:border-red-800' 
                         : 'text-gray-600 hover:text-black'
@@ -391,14 +391,14 @@ export function Products() {
                       e.stopPropagation();
                       handleFavoriteClick(product.id);
                     }}>
-                      <svg width="25" height="25">
+                      <svg className="size-4 md:size-6">
                         <use xlinkHref={isInFavorites ? "/sprite.svg#removebm" : "/sprite.svg#addbm"} />
                       </svg>
                     </button>
                   </div>
                   
                   <div 
-                    className={`absolute right-0 bottom-11 border p-1 m-3 rounded-full cursor-pointer transition-colors ${
+                    className={`absolute right-0 bottom-7 md:bottom-11 p-1 m-1.5 md:m-3 rounded-full cursor-pointer transition-colors ${
                       isInCart 
                         ? 'border-red-600 text-red-600 hover:text-red-800 hover:border-red-800' 
                         : 'text-gray-600 hover:text-black'
@@ -409,21 +409,22 @@ export function Products() {
                       e.stopPropagation();
                       handleAddToCart(product.id);
                     }}>
-                      <svg width="25" height="25">
+                      <svg className="size-4 md:size-6">
                         <use xlinkHref={isInCart ? "/sprite.svg#shopm" : "/sprite.svg#shop"} />
                       </svg>
                     </button>
                   </div>
                 </section>
-                <section className="h-1/3 w-full p-1 rounded-b-3xl bg-store-bg2/70 flex flex-col gap-1 overflow-hidden">
-                  <div className="w-full h-max overflow-x-auto scrollbar">
+                <section className="h-2/5 md:1/3 w-full p-1 rounded-b-xl md:rounded-b-3xl flex flex-col gap-1 overflow-hidden">
+                  <div className="w-full h-max overflow-x-auto scrollbar text-[10px] md:text[16px]">
                     <article className="w-max h-max">{product.nombre}</article>
                   </div>
                   <div className="w-full h-2/3 flex flex-row gap-0.5 justify-between">
-                    <div className="w-2/3 h-full overflow-y-auto scrollbar-none">
+                    <div className="w-2/4 md:w-2/3 h-full overflow-y-auto scrollbar-none text-[10px] md:text[16px]">
                       <article className="w-2/3">{product.descripcion}</article>
                     </div>
-                    <article className="w-1/3 h-full rounded-2xl flex items-center justify-center bg-store-details">
+                    <article className="w-2/4 md:1/3 h-full rounded-2xl flex items-center justify-center
+                      text-[12px] md:text-[16px]">
                       <strong>{new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(product.precio)}</strong>
                     </article>
                   </div>
@@ -444,7 +445,7 @@ export function Products() {
               <div className={`p-1 rounded-lg ${
                 favError 
                   ? 'text-red-600 bg-red-200' 
-                  : 'text-emerald-600 bg-store-bg2/60 backdrop-blur-xl'
+                  : 'text-emerald-600 backdrop-blur-xl'
               }`}>
                 <svg className="size-6">
                   <use xlinkHref={favError ? "/sprite.svg#error" : "/sprite.svg#check"} />

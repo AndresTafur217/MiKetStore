@@ -66,8 +66,8 @@ export function Layout() {
             </div>
           </article>
           <ProtectedLink to="/perfil" aria-label={user ? "Abrir perfil" : "Iniciar sesión"} title={user ? "Abrir perfil" : "Iniciar sesión"} className="size-12 md:size-18  border-gray-400 rounded-full">
-            <div className="h-full w-full flex justify-center items-center rounded-full bg-store-items 
-              text-gray-900 transition-transform ease-in-out hover:scale-105 hover:bg-surface hover:text-store-bg2">
+            <div className="h-full w-full flex justify-center items-center rounded-full 
+              text-gray-900 transition-transform ease-in-out hover:scale-105 hover:bg-surface">
               <svg className="size-6.5 md:size-12">
                 <use xlinkHref={user ? "/sprite.svg#person" : "/sprite.svg#login"} />
               </svg>
@@ -78,7 +78,7 @@ export function Layout() {
       <section className="h-17 md:h-20 bg-background z-50 overflow-hidden">
         <Menu />
       </section>
-      <section className="min-h-0 flex-1 px-2.5 pb-2.5 bg-store-bg2/70 z-10 overflow-hidden">
+      <section className="min-h-0 flex-1 px-2.5 pb-2.5 z-10 overflow-hidden">
           <div className="h-full w-full overflow-y-auto scrollbar">
             <div className="flex min-h-full w-full flex-col items-center">
               <section className="w-full p-5 rounded-b-6xl">
